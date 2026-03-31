@@ -1,2 +1,0 @@
-AVL trees provide more consistent performance and are preferred for large datasets, 
-while BSTs may be sufficient for small or randomly distributed data.
