@@ -1,5 +1,3 @@
-# red_black_tree.py
-
 RED = "RED"
 BLACK = "BLACK"
 
@@ -19,7 +17,7 @@ class RedBlackTree:
         self.NIL.color = BLACK
         self.root = self.NIL
 
-    # ---------------- ROTATIONS ----------------
+    #ROTATIONS
 
     def left_rotate(self, x):
         y = x.right
@@ -59,7 +57,7 @@ class RedBlackTree:
         x.right = y
         y.parent = x
 
-    # ---------------- INSERT ----------------
+    #INSERT
 
     def insert(self, key):
         node = RBNode(key)
@@ -130,7 +128,7 @@ class RedBlackTree:
 
         self.root.color = BLACK
 
-    # ---------------- SEARCH ----------------
+    #SEARCH
 
     def search(self, node, key):
         if node == self.NIL or key == node.key:
@@ -139,7 +137,7 @@ class RedBlackTree:
             return self.search(node.left, key)
         return self.search(node.right, key)
 
-    # ---------------- INORDER ----------------
+    #INORDER
 
     def inorder(self, node):
         if node != self.NIL:
@@ -148,7 +146,7 @@ class RedBlackTree:
             self.inorder(node.right)
 
 
-# ---------------- TEST ----------------
+#APP
 
 if __name__ == "__main__":
     tree = RedBlackTree()
