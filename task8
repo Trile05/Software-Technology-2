@@ -52,58 +52,76 @@ class GraphVisualizer(tk.Tk):
 
     # ================= DRAW GRAPH =================
     def draw_graph(self):
-        self.canvas.delete("all")
-        self.vertex_positions.clear()
-        self.vertex_circles.clear()
-        self.edge_lines.clear()
+    self.canvas.delete("all")
+    self.vertex_positions.clear()
+    self.vertex_circles.clear()
+    self.edge_lines.clear()
 
-        vertices = list(self.graph.graph.keys())
-        n = len(vertices)
-        if n == 0:
-            return
+    vertices = list(self.graph.graph.keys())
+    n = len(vertices)
+    if n == 0:
+        return
 
-        angle_gap = 360 / n
-        cx, cy = self.center
+    angle_gap = 360 / n
+    cx, cy = self.center
 
-        # Draw vertices
-        for i, v in enumerate(vertices):
-            angle = i * angle_gap
-            x = cx + self.spacing * math.cos(math.radians(angle))
-            y = cy + self.spacing * math.sin(math.radians(angle))
+    # Position vertices in a circle
+    for i, v in enumerate(vertices):
+        angle = i * angle_gap
+        x = cx + self.spacing * math.cos(math.radians(angle))
+        y = cy + self.spacing * math.sin(math.radians(angle))
+        self.vertex_positions[v] = (x, y)
 
-            self.vertex_positions[v] = (x, y)
+        circle_id = self.canvas.create_oval(
+            x - self.node_radius, y - self.node_radius,
+            x + self.node_radius, y + self.node_radius,
+            fill='lightblue', outline='black', width=2
+        )
 
-            circle_id = self.canvas.create_oval(
-                x - self.node_radius, y - self.node_radius,
-                x + self.node_radius, y + self.node_radius,
-                fill='lightblue'
-            )
+        self.vertex_circles[v] = circle_id
+        self.canvas.create_text(x, y, text=v, font=("Arial", 12, "bold"))
 
-            self.vertex_circles[v] = circle_id
-            self.canvas.create_text(x, y, text=v)
+    # Draw edges
+    for v in vertices:
+        x1, y1 = self.vertex_positions[v]
+        for nbr in self.graph.graph[v]:
+            x2, y2 = self.vertex_positions[nbr]
 
-        # Draw edges
-        for v in vertices:
-            x1, y1 = self.vertex_positions[v]
+            dx, dy = x2 - x1, y2 - y1
+            dist = math.sqrt(dx * dx + dy * dy)
+            if dist == 0:
+                continue
 
-            for nbr in self.graph.graph[v]:
-                x2, y2 = self.vertex_positions[nbr]
+            offset_x = dx / dist * self.node_radius
+            offset_y = dy / dist * self.node_radius
 
-                if self.graph.directed:
-                    line = self.canvas.create_line(x1, y1, x2, y2, arrow=tk.LAST)
-                else:
-                    line = self.canvas.create_line(x1, y1, x2, y2)
+            start = (x1 + offset_x, y1 + offset_y)
+            end = (x2 - offset_x, y2 - offset_y)
 
-                self.edge_lines[(v, nbr)] = line
+            if self.graph.directed:
+                line_id = self.canvas.create_line(
+                    start[0], start[1], end[0], end[1],
+                    arrow=tk.LAST, width=2
+                )
+            else:
+                line_id = self.canvas.create_line(
+                    start[0], start[1], end[0], end[1],
+                    width=2
+                )
 
-                if self.graph.weighted:
-                    w = self.graph.weights.get((v, nbr), "")
-                    self.canvas.create_text(
-                        (x1 + x2) / 2,
-                        (y1 + y2) / 2,
-                        text=str(w),
-                        fill="red"
-                    )
+            self.edge_lines[(v, nbr)] = line_id
+
+            if self.graph.weighted:
+                w = self.graph.weights.get((v, nbr), '')
+                mid_x = (start[0] + end[0]) / 2
+                mid_y = (start[1] + end[1]) / 2
+
+                self.canvas.create_text(
+                    mid_x, mid_y,
+                    text=str(w),
+                    fill="red",
+                    font=("Arial", 10, "italic")
+                )
 
     # ================= RESET =================
     def reset_colors(self):
